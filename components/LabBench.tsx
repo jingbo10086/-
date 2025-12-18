@@ -49,6 +49,39 @@ const LabBench: React.FC = () => {
 
   const currentLiquidColor = aiColor || fallbackColor;
 
+  // 动态计算烧瓶区域的风险样式
+  const flaskAreaStyles = useMemo(() => {
+    if (flask.length === 0) {
+      return {
+        container: "bg-indigo-50/50 border-indigo-200",
+        pulse: "bg-indigo-500/5",
+        text: "text-indigo-600"
+      };
+    }
+    
+    const maxDanger = Math.max(...flask.map(r => r.dangerLevel));
+    
+    if (maxDanger > 70) {
+      return {
+        container: "bg-red-50 border-red-300 ring-4 ring-red-500/5",
+        pulse: "bg-red-500/10",
+        text: "text-red-600"
+      };
+    } else if (maxDanger > 30) {
+      return {
+        container: "bg-orange-50 border-orange-200",
+        pulse: "bg-orange-500/5",
+        text: "text-orange-600"
+      };
+    } else {
+      return {
+        container: "bg-green-50 border-green-200",
+        pulse: "bg-green-500/5",
+        text: "text-green-600"
+      };
+    }
+  }, [flask]);
+
   useEffect(() => {
     const runAnalysis = async () => {
       if (flask.length < 2) {
@@ -129,8 +162,8 @@ const LabBench: React.FC = () => {
 
         {/* 核心实验区 */}
         <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-          <div className="bg-indigo-50/50 rounded-[2rem] border-2 border-dashed border-indigo-200 flex flex-col items-center justify-center p-8 relative overflow-hidden h-[650px]">
-             {loading && <div className="absolute inset-0 bg-indigo-500/5 animate-pulse"></div>}
+          <div className={`${flaskAreaStyles.container} transition-colors duration-700 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center p-8 relative overflow-hidden h-[650px]`}>
+             {loading && <div className={`absolute inset-0 ${flaskAreaStyles.pulse} animate-pulse`}></div>}
              
              <div className="absolute top-6 right-6 flex gap-2 z-10">
                 <button onClick={clearFlask} className="w-10 h-10 bg-white rounded-full shadow-sm text-slate-400 hover:text-red-500 transition-colors flex items-center justify-center">
@@ -191,7 +224,7 @@ const LabBench: React.FC = () => {
                 <h4 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">实验核心反应器</h4>
                 <div className="flex flex-wrap justify-center gap-2 mt-4">
                   {flask.map((f, i) => (
-                    <span key={i} className="px-3 py-1 bg-white rounded-lg text-xs font-bold text-indigo-600 shadow-sm border border-indigo-50 animate-in zoom-in-50">
+                    <span key={i} className={`px-3 py-1 bg-white rounded-lg text-xs font-bold ${flaskAreaStyles.text} shadow-sm border border-indigo-50 animate-in zoom-in-50`}>
                       {f.name}
                     </span>
                   ))}
