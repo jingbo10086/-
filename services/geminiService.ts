@@ -12,7 +12,7 @@ import { ai } from "./aiClient";
  * 实验室安全分析服务
  * 功能：实时识别混合试剂的化学反应、风险等级及安全警告
  */
-export const analyzeSafety = async (flaskReagents: Reagent[]) => {
+export const analyzeSafety = async (flaskReagents: Reagent[], temperature: number = 25) => {
   if (flaskReagents.length === 0) return null;
 
   const reagentList = flaskReagents.map(r => `${r.name} (${r.formula})`).join(", ");
@@ -24,7 +24,9 @@ export const analyzeSafety = async (flaskReagents: Reagent[]) => {
      */
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `以下化学物质被混合在烧杯中：${reagentList}。请分析安全性并说明反应。`,
+      contents: `以下化学物质被混合在烧杯中：${reagentList}。
+      当前实验室温度设定为：${temperature}°C。
+      请根据混合物和温度分析安全性，说明是否存在热分解、爆炸风险或反应加速。`,
       config: {
         systemInstruction: SYSTEM_PROMPT,
         responseMimeType: "application/json",
@@ -34,7 +36,7 @@ export const analyzeSafety = async (flaskReagents: Reagent[]) => {
             reaction: { type: Type.STRING, description: "对观察到的反应的简短描述" },
             riskScore: { type: Type.NUMBER, description: "0-100 的风险分数" },
             warnings: { type: Type.ARRAY, items: { type: Type.STRING }, description: "安全警告列表" },
-            explanation: { type: Type.STRING, description: "科学原理的详细解释" },
+            explanation: { type: Type.STRING, description: "科学原理的详细解释（请务必提到温度的影响）" },
             newColor: { type: Type.STRING, description: "反应后混合物的 Tailwind 颜色类名" }
           },
           required: ["reaction", "riskScore", "warnings", "explanation"]
