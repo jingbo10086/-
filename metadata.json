@@ -1,0 +1,8 @@
+{
+  "name": "Copy of 智能化学实验室 AI",
+  "description": "一款基于 AI 的虚拟化学实验室，专注于安全风险管理、知识获取和趣味化学习。",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
