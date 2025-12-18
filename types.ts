@@ -6,7 +6,8 @@ export interface Reagent {
   color: string;
   state: 'solid' | 'liquid' | 'gas';
   dangerLevel: number; // 0-100
-  category: 'acid' | 'base' | 'salt' | 'metal' | 'oxidizer' | 'water';
+  category: 'acid' | 'base' | 'salt' | 'metal' | 'oxidizer' | 'water' | 'organic' | 'indicator';
+  description?: string;
 }
 
 export interface LabState {

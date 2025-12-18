@@ -1,16 +1,27 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
 import { SYSTEM_PROMPT } from "../constants";
 import { Reagent } from "../types";
+/** 
+ * 调用点标注：
+ * 所有的 Gemini API 调用现在都统一引用自 aiClient.ts
+ */
+import { ai } from "./aiClient";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-
+/**
+ * 实验室安全分析服务
+ * 功能：实时识别混合试剂的化学反应、风险等级及安全警告
+ */
 export const analyzeSafety = async (flaskReagents: Reagent[]) => {
   if (flaskReagents.length === 0) return null;
 
   const reagentList = flaskReagents.map(r => `${r.name} (${r.formula})`).join(", ");
   
   try {
+    /** 
+     * 调用点：使用统一的 ai 实例调用 models.generateContent
+     * 模型：gemini-3-flash-preview (适用于基础文本分析任务)
+     */
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `以下化学物质被混合在烧杯中：${reagentList}。请分析安全性并说明反应。`,
@@ -38,8 +49,15 @@ export const analyzeSafety = async (flaskReagents: Reagent[]) => {
   }
 };
 
+/**
+ * 知识百科服务
+ * 功能：为学生提供化学概念的趣味解释与方程式记忆辅助
+ */
 export const getKnowledgeCard = async (topic: string) => {
   try {
+    /** 
+     * 调用点：使用统一的 ai 实例获取百科知识
+     */
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `用通俗易懂且有趣的方式向学生解释 ${topic}。包括一个关键的化学方程式。请使用中文回答。`,
@@ -59,6 +77,7 @@ export const getKnowledgeCard = async (topic: string) => {
     });
     return JSON.parse(response.text);
   } catch (error) {
+    console.error("Gemini 知识卡片获取失败:", error);
     return null;
   }
 };
